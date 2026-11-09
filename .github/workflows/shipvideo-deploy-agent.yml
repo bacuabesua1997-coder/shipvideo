@@ -1,0 +1,76 @@
+name: ShipVideo - Deploy AI Agent
+
+on:
+  workflow_dispatch:
+    inputs:
+      create_project:
+        description: "Enable only the first time to create the OpenComputer project"
+        required: true
+        default: false
+        type: boolean
+      project_slug:
+        description: "OpenComputer project slug (default: shipvideo)"
+        required: true
+        default: shipvideo
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy director to production
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      OPENCOMPUTER_API_KEY: ${{ secrets.OPENCOMPUTER_API_KEY }}
+      PROJECT_SLUG: ${{ inputs.project_slug }}
+      CREATE_PROJECT: ${{ inputs.create_project }}
+    steps:
+      - name: Check required secret
+        shell: bash
+        run: |
+          if [ -z "$OPENCOMPUTER_API_KEY" ]; then
+            echo "::error::Add OPENCOMPUTER_API_KEY in Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install project dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Link or create the OpenComputer project
+        shell: bash
+        run: |
+          if [ "$CREATE_PROJECT" = "true" ]; then
+            npx --yes --package @opencomputer/cli@0.7.23 opencomputer link --create-project "$PROJECT_SLUG"
+          else
+            npx --yes --package @opencomputer/cli@0.7.23 opencomputer link --project "$PROJECT_SLUG"
+          fi
+
+      - name: Run OpenComputer project diagnostics
+        run: npx --yes --package @opencomputer/cli@0.7.23 opencomputer doctor --json
+
+      - name: Deploy director to production
+        run: npx --yes --package @opencomputer/cli@0.7.23 opencomputer deploy --alias production
+
+      - name: Deployment summary
+        run: |
+          {
+            echo "## ShipVideo agent deployment"
+            echo ""
+            echo "- Project: `$PROJECT_SLUG`"
+            echo "- Agent alias: `production`"
+            echo "- Expected agent ID: `$PROJECT_SLUG@production`"
+            echo "- Next: run **ShipVideo - Create MP4 (Android)** from the Actions tab."
+          } >> "$GITHUB_STEP_SUMMARY"
