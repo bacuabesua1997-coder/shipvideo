@@ -1,5 +1,5 @@
 import { mkdir, writeFile } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
+import { resolve } from "node:path";
 import { randomUUID } from "node:crypto";
 
 const API_BASE = (process.env.OPENCOMPUTER_API_URL || "https://app.opencomputer.dev").replace(/\/+$/, "");
@@ -123,7 +123,6 @@ async function downloadVideo(download, sessionId, input) {
 }
 
 async function main() {
-  validateConfig();
   const input = validateConfig();
   const { session } = await api("/api/managed-agents/sessions", {
     method: "POST",
