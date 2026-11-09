@@ -1,0 +1,79 @@
+name: ShipVideo - Create MP4 (Android)
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "url = turn a website into a launch video; prompt = create from a brief"
+        required: true
+        default: prompt
+        type: choice
+        options:
+          - prompt
+          - url
+      input:
+        description: "Paste a website URL or describe the video (max 2,000 characters)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shipvideo-render-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  render:
+    name: Generate and package MP4
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      OPENCOMPUTER_API_KEY: ${{ secrets.OPENCOMPUTER_API_KEY }}
+      OPENCOMPUTER_API_URL: ${{ vars.OPENCOMPUTER_API_URL || 'https://app.opencomputer.dev' }}
+      OC_AGENT_ID: ${{ vars.OC_AGENT_ID || 'shipvideo@production' }}
+      VIDEO_MODE: ${{ inputs.mode }}
+      VIDEO_INPUT: ${{ inputs.input }}
+    steps:
+      - name: Check required secret
+        shell: bash
+        run: |
+          if [ -z "$OPENCOMPUTER_API_KEY" ]; then
+            echo "::error::Add OPENCOMPUTER_API_KEY in Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Generate video in OpenComputer
+        run: node scripts/mobile/run-video.mjs
+
+      - name: Upload MP4 and job details
+        uses: actions/upload-artifact@v4
+        with:
+          name: shipvideo-${{ github.run_number }}
+          path: |
+            output/mobile/video.mp4
+            output/mobile/job.json
+          retention-days: 14
+          if-no-files-found: error
+
+      - name: Android download instructions
+        if: success()
+        run: |
+          {
+            echo "## ShipVideo completed"
+            echo ""
+            echo "- The MP4 was generated successfully."
+            echo "- Open **Actions → this run → Artifacts** and download `shipvideo-${{ github.run_number }}`."
+            echo "- Extract the ZIP on Android to access `video.mp4`."
+            echo "- Artifact retention: 14 days."
+          } >> "$GITHUB_STEP_SUMMARY"
