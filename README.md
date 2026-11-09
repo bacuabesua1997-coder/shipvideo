@@ -81,3 +81,16 @@ session workspace and the API signs a download for it.
 - `@sparticuz/chromium` does not ship arm64 builds; Playwright's
   `chromium-headless-shell` does, and needs the dnf libs listed in
   `opencomputer/agents/director/tools/renderer.ts`.
+
+
+---
+
+## 📱 Run ShipVideo from Android with GitHub Actions
+
+This fork includes manual workflows for deploying the OpenComputer agent and generating an MP4 from a phone. Follow **[ANDROID_SETUP_VI.md](ANDROID_SETUP_VI.md)** for the complete Vietnamese setup guide.
+
+- **ShipVideo - Deploy AI Agent**: create/link the OpenComputer project and deploy the `director` agent.
+- **ShipVideo - Create MP4 (Android)**: submit a URL or prompt, wait for the cloud renderer, and download the MP4 from the workflow artifact.
+- **ShipVideo - CI**: validate the agent TypeScript and Next.js frontend on pushes and pull requests.
+
+The video workflow is manual-only. It requires the repository secret `OPENCOMPUTER_API_KEY` and an available OpenComputer agent/model. OpenComputer/model usage may incur charges; it is not an unlimited free service.
