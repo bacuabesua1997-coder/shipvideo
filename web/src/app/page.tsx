@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Examples } from "./examples";
 import { Technical } from "./technical";
 import { AfterVideo, Nav } from "./cta";
@@ -25,10 +25,50 @@ function loadJob(): Job | null {
   }
 }
 
+let restoredJobSnapshot: Job | null | undefined;
+
+function getRestoredJobSnapshot(): Job | null {
+  if (restoredJobSnapshot !== undefined) return restoredJobSnapshot;
+
+  const params = new URLSearchParams(window.location.search);
+  const jobId = params.get("job");
+  const sessionId = params.get("session");
+  if (jobId && sessionId) {
+    restoredJobSnapshot = { jobId, sessionId, mode: "prompt", input: "", startedAt: Date.now() };
+    return restoredJobSnapshot;
+  }
+
+  const saved = loadJob();
+  restoredJobSnapshot = saved && Date.now() - saved.startedAt < 30 * 60 * 1000 ? saved : null;
+  return restoredJobSnapshot;
+}
+
+function subscribeToRestoredJob(callback: () => void) {
+  const refresh = () => {
+    restoredJobSnapshot = undefined;
+    callback();
+  };
+  window.addEventListener("storage", refresh);
+  window.addEventListener("popstate", refresh);
+  window.addEventListener("launchvideo:job-change", refresh);
+  return () => {
+    window.removeEventListener("storage", refresh);
+    window.removeEventListener("popstate", refresh);
+    window.removeEventListener("launchvideo:job-change", refresh);
+  };
+}
+
+function clearRestoredJob() {
+  restoredJobSnapshot = undefined;
+  window.dispatchEvent(new Event("launchvideo:job-change"));
+}
+
 export default function Home() {
   const [mode, setMode] = useState<Mode>("url");
   const [input, setInput] = useState("");
   const [job, setJob] = useState<Job | null>(null);
+  const restoredJob = useSyncExternalStore(subscribeToRestoredJob, getRestoredJobSnapshot, () => null);
+  const activeJob = job ?? restoredJob;
   const [poll, setPoll] = useState<Poll | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -36,24 +76,11 @@ export default function Home() {
   const timer = useRef<number | null>(null);
 
   useEffect(() => {
-    // ?job=<id>&session=<sid> reopens a job started elsewhere (handy for sharing a link).
-    const params = new URLSearchParams(window.location.search);
-    const jobId = params.get("job");
-    const sessionId = params.get("session");
-    if (jobId && sessionId) {
-      setJob({ jobId, sessionId, mode: "prompt", input: "", startedAt: Date.now() });
-      return;
-    }
-    const saved = loadJob();
-    if (saved && Date.now() - saved.startedAt < 30 * 60 * 1000) setJob(saved);
-  }, []);
-
-  useEffect(() => {
-    if (!job) return;
+    if (!activeJob) return;
     let stopped = false;
     const tick = async () => {
       try {
-        const res = await fetch(`/api/jobs/${job.jobId}?session=${encodeURIComponent(job.sessionId)}`, { cache: "no-store" });
+        const res = await fetch(`/api/jobs/${activeJob.jobId}?session=${encodeURIComponent(activeJob.sessionId)}`, { cache: "no-store" });
         const data = (await res.json()) as Poll;
         if (stopped) return;
         setPoll(data);
@@ -64,13 +91,13 @@ export default function Home() {
       }
     };
     tick();
-    const clock = window.setInterval(() => setElapsed(Math.floor((Date.now() - job.startedAt) / 1000)), 1000);
+    const clock = window.setInterval(() => setElapsed(Math.floor((Date.now() - activeJob.startedAt) / 1000)), 1000);
     return () => {
       stopped = true;
       if (timer.current) window.clearTimeout(timer.current);
       window.clearInterval(clock);
     };
-  }, [job]);
+  }, [activeJob]);
 
   const submit = useCallback(async () => {
     setError(null);
@@ -93,14 +120,19 @@ export default function Home() {
 
   const reset = () => {
     localStorage.removeItem(STORAGE);
+    const url = new URL(window.location.href);
+    url.searchParams.delete("job");
+    url.searchParams.delete("session");
+    window.history.replaceState({}, "", url.toString());
+    clearRestoredJob();
     setJob(null);
     setPoll(null);
     setError(null);
   };
 
-  const working = job && (!poll || poll.status === "working");
-  const done = job && poll?.status === "done" && poll.videoUrl;
-  const failed = job && poll?.status === "error";
+  const working = activeJob && (!poll || poll.status === "working");
+  const done = activeJob && poll?.status === "done" && poll.videoUrl;
+  const failed = activeJob && poll?.status === "error";
 
   return (
     <main className="flex-1 flex flex-col items-center justify-center px-6 pb-16 pt-2">
@@ -115,7 +147,7 @@ export default function Home() {
           </p>
         </header>
 
-        {!job && (
+        {!activeJob && (
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -186,7 +218,7 @@ export default function Home() {
               <span className="ml-auto font-mono text-xs text-muted tabular-nums">{Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, "0")}</span>
             </div>
             <p className="mt-3 text-sm text-muted break-words">
-              {job.mode === "url" ? job.input : job.input.slice(0, 160)}
+              {activeJob.mode === "url" ? activeJob.input : activeJob.input.slice(0, 160)}
             </p>
             <p className="mt-6 text-xs text-muted">
               The agent reads the source, writes an HTML film, checks it, renders 30 frames a second in a headless browser, and saves the MP4 to the session workspace. You can leave this tab open.
