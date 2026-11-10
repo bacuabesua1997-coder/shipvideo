@@ -11,7 +11,7 @@ generation" demo (Opus wrote JS, rendered via a headless browser + ffmpeg),
 packaged behind a one-field form.
 
 ```
-opencomputer/   the OpenComputer project (one agent, `director`, model anthropic/claude-opus-5.5)
+opencomputer/   the OpenComputer project (one agent, `director`, model anthropic/claude-sonnet-4.6)
 oc-template.toml  one-click deploy manifest
 web/            Next.js app: the form and two API routes — no storage of its own
 ```
@@ -93,4 +93,4 @@ This fork includes manual workflows for deploying the OpenComputer agent and gen
 - **ShipVideo - Create MP4 (Android)**: submit a URL or prompt, wait for the cloud renderer, and download the MP4 from the workflow artifact.
 - **ShipVideo - CI**: validate the agent TypeScript and Next.js frontend on pushes and pull requests.
 
-The video workflow is manual-only. It requires the repository secret `OPENCOMPUTER_API_KEY` and an available OpenComputer agent/model. OpenComputer/model usage may incur charges; it is not an unlimited free service.
+The video workflow is manual-only. It requires the repository secret `OPENCOMPUTER_API_KEY` and model access for `anthropic/claude-sonnet-4.6` in OpenComputer (OpenComputer tokens or your own provider key). The management API key does not itself pay for model inference. Usage may incur charges; this is not an unlimited free service.
