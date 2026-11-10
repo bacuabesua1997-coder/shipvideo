@@ -29,23 +29,23 @@ Trên Android:
 Không dán API key vào workflow input, file code, README hoặc issue. Không chia sẻ key trong ảnh chụp màn hình.
 
 Tùy chọn: trong **Settings → Secrets and variables → Actions → Variables**, tạo:
-- `OC_AGENT_ID`: mặc định `shipvideo@production`; chỉ đổi nếu agent có ID khác.
+- `OC_AGENT_ID`: mặc định `shipvideo@development`; chỉ đổi nếu agent có ID khác.
 - `OPENCOMPUTER_API_URL`: mặc định `https://app.opencomputer.dev`; thường không cần tạo.
 
-## 3. Deploy AI Agent lần đầu
+## 3. Deploy AI Agent
 
 1. Mở tab **Actions** trong repository.
 2. Chọn workflow **ShipVideo - Deploy AI Agent**.
 3. Chọn **Run workflow**.
-4. Lần đầu tiên, bật `create_project`.
+4. Project `shipvideo` đã được tạo ở lần chạy đầu trước đó, vì vậy để `create_project` là `false`.
 5. Để `project_slug` là `shipvideo`.
 6. Bấm **Run workflow** và chờ hoàn tất.
 
-Workflow tạo/liên kết project OpenComputer, chạy chẩn đoán và deploy agent với alias production. Agent ID mặc định dùng ở bước tạo video là `shipvideo@production`.
+Workflow liên kết project OpenComputer đã tạo, chạy chẩn đoán và deploy agent vào môi trường Development mặc định. Project hiện tại chỉ có một môi trường nên không dùng `--alias production`. Agent ID mặc định dùng ở bước tạo video là `shipvideo@development`.
 
 Những lần cập nhật agent sau đó: chạy lại workflow, tắt `create_project`, giữ project slug `shipvideo`.
 
-Nếu project đã được tạo sẵn trên OpenComputer, tắt `create_project` và nhập đúng project slug hiện có.
+Nếu project đã được tạo sẵn trên OpenComputer, luôn tắt `create_project` và nhập đúng project slug hiện có. Chỉ bật khi thực sự chưa có project.
 
 ## 4. Tạo video ngay trên Android
 

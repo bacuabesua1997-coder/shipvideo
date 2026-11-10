@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       create_project:
-        description: "Enable only the first time to create the OpenComputer project"
+        description: "Enable only if the OpenComputer project does not exist yet"
         required: true
         default: false
         type: boolean
@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   deploy:
-    name: Deploy director to production
+    name: Deploy director to development
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
@@ -61,8 +61,8 @@ jobs:
       - name: Run OpenComputer project diagnostics
         run: npx --yes --package @opencomputer/cli@0.7.23 opencomputer doctor --json
 
-      - name: Deploy director to production
-        run: npx --yes --package @opencomputer/cli@0.7.23 opencomputer deploy --alias production
+      - name: Deploy director to the project's default environment
+        run: npx --yes --package @opencomputer/cli@0.7.23 opencomputer deploy
 
       - name: Deployment summary
         run: |
@@ -70,7 +70,7 @@ jobs:
             echo "## ShipVideo agent deployment"
             echo ""
             echo "- Project: `$PROJECT_SLUG`"
-            echo "- Agent alias: `production`"
-            echo "- Expected agent ID: `$PROJECT_SLUG@production`"
+            echo "- Environment: `development` (the project's configured single environment)"
+            echo "- Agent ID: `$PROJECT_SLUG@development`"
             echo "- Next: run **ShipVideo - Create MP4 (Android)** from the Actions tab."
           } >> "$GITHUB_STEP_SUMMARY"
