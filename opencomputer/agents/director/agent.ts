@@ -29,7 +29,7 @@ function parseJob(text: string): Job | null {
 
 export default function Agent() {
   const input = useInput();
-  useModel("anthropic/claude-opus-5.5");
+  useModel("anthropic/claude-sonnet-4.6");
   useTool(webFetch);
   useTool(checkScene);
   useTool(renderVideo);
