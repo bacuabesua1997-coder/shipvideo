@@ -41,7 +41,7 @@ Tùy chọn: trong **Settings → Secrets and variables → Actions → Variable
 5. Để `project_slug` là `shipvideo`.
 6. Bấm **Run workflow** và chờ hoàn tất.
 
-Workflow tạo/liên kết project OpenComputer, chạy chẩn đoán và deploy agent với alias production. Agent ID mặc định dùng ở bước tạo video là `shipvideo@production`.
+Workflow liên kết project OpenComputer đã tạo, chạy chẩn đoán và deploy agent vào môi trường Development mặc định. Project hiện tại chỉ có một môi trường nên không dùng `--alias production`. Agent ID mặc định dùng ở bước tạo video là `shipvideo@development`.
 
 Những lần cập nhật agent sau đó: chạy lại workflow, tắt `create_project`, giữ project slug `shipvideo`.
 
