@@ -207,7 +207,7 @@ export default function Home() {
 
         {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
 
-        {working && (
+        {working && activeJob && (
           <section className="rounded-2xl border border-line p-6">
             <div className="flex items-center gap-3">
               <span className="relative flex h-2.5 w-2.5">
