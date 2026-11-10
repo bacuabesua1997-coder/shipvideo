@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 
 const API_BASE = (process.env.OPENCOMPUTER_API_URL || "https://app.opencomputer.dev").replace(/\/+$/, "");
 const API_KEY = process.env.OPENCOMPUTER_API_KEY?.trim();
-const AGENT_ID = process.env.OC_AGENT_ID?.trim() || "shipvideo@development";
+const AGENT_ID = process.env.OC_AGENT_ID?.trim() || "shipvideo@default";
 const MODE = process.env.VIDEO_MODE === "url" ? "url" : "prompt";
 const RAW_INPUT = process.env.VIDEO_INPUT || "";
 const RUN_ID = process.env.GITHUB_RUN_ID || randomUUID().replaceAll("-", "");
@@ -24,7 +24,7 @@ function validateConfig() {
   if (apiUrl.protocol !== "https:" && apiUrl.hostname !== "localhost" && apiUrl.hostname !== "127.0.0.1") {
     throw new Error("OPENCOMPUTER_API_URL must use HTTPS.");
   }
-  if (!AGENT_ID.includes("@")) throw new Error("OC_AGENT_ID must include an environment, e.g. shipvideo@development.");
+  if (!AGENT_ID.includes("@")) throw new Error("OC_AGENT_ID must include an environment, e.g. shipvideo@default.");
   let input = RAW_INPUT.replace(/\s+/g, " ").trim();
   if (!input) throw new Error("Enter a URL or a video brief in the workflow input.");
   if (input.length > 2000) throw new Error("Input is too long (maximum 2,000 characters).");
