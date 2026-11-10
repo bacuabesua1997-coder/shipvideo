@@ -25,7 +25,7 @@ export type OcEvent = { id: string; seq: number; type: string; data: Record<stri
 export type OcSession = { id: string; status: string; microvmState?: string; turns?: Array<{ id: string; status: string }> };
 
 export function agentId(): string {
-  return process.env.OC_AGENT_ID ?? "shipvideo@development";
+  return process.env.OC_AGENT_ID ?? "shipvideo@default";
 }
 
 export async function createSession(): Promise<OcSession> {
