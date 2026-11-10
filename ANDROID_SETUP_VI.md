@@ -8,14 +8,14 @@ Bản fork này được bổ sung quy trình GitHub Actions để tạo video t
 
 - Tài khoản OpenComputer.
 - OpenComputer organization API key.
-- Quyền truy cập model được khai báo trong agent: `anthropic/claude-opus-5.5`.
+- Quyền sử dụng model `anthropic/claude-sonnet-4.6` qua OpenComputer (token của OpenComputer hoặc API key nhà cung cấp do bạn tự quản lý).
 - GitHub Actions được bật trong repository.
 
 **Chi phí:** Không nên coi đây là công cụ miễn phí không giới hạn. OpenComputer tính usage theo gói/tín dụng và mức sử dụng model, thời gian máy cloud. Workflow chỉ chạy khi bạn chủ động bấm Run workflow; không tự động tạo video khi push code.
 
 Tài liệu OpenComputer: https://opencomputer.dev/developers/ và https://www.npmjs.com/package/@opencomputer/cli
 
-## 2. Thêm API key vào GitHub (chỉ làm một lần)
+## 2. Cấu hình model AI và API key vào GitHub (chỉ làm một lần)
 
 Trên Android:
 
@@ -26,7 +26,7 @@ Trên Android:
 5. Secret: dán organization API key lấy từ tài khoản OpenComputer.
 6. Chọn **Add secret**.
 
-Không dán API key vào workflow input, file code, README hoặc issue. Không chia sẻ key trong ảnh chụp màn hình.
+Không dán API key vào workflow input, file code, README hoặc issue. Không chia sẻ key trong ảnh chụp màn hình.\n\n**Lưu ý phân biệt hai loại khóa:** `OPENCOMPUTER_API_KEY` dùng để gọi Management API và tạo session; khóa này không tự cấp quyền inference cho model. Trong OpenComputer Dashboard, cấu hình quyền model theo một trong hai cách: chọn token/model usage do OpenComputer cung cấp (nếu workspace có bật), hoặc thêm API key của nhà cung cấp model mà bạn sở hữu. Không cần kết nối Codex/ChatGPT subscription.
 
 Tùy chọn: trong **Settings → Secrets and variables → Actions → Variables**, tạo:
 - `OC_AGENT_ID`: mặc định `shipvideo@default`; chỉ đổi nếu OpenComputer dashboard cho thấy Agent ID khác. Nếu trước đây đã tạo biến này thành `shipvideo@development`, hãy sửa thành `shipvideo@default` hoặc xóa biến để dùng mặc định.
@@ -76,7 +76,7 @@ Artifact được giữ 14 ngày. Hãy tải về thiết bị trước khi hế
 
 - **Missing OPENCOMPUTER_API_KEY:** kiểm tra lại repository secret ở bước 2.
 - **Agent not found / deployment not found:** chạy lại workflow deploy; kiểm tra `OC_AGENT_ID` và project slug.
-- **Model unavailable:** tài khoản OpenComputer chưa có quyền hoặc chưa cấu hình quyền sử dụng model được agent yêu cầu.
+- **Model unavailable:** workspace chưa bật token/model usage cho `anthropic/claude-sonnet-4.6`, hoặc chưa thêm API key nhà cung cấp tương ứng. Kiểm tra model access trong OpenComputer Dashboard.
 - **Runtime timeout / render failed:** mở OpenComputer dashboard, kiểm tra session/logs; lần chạy đầu có thể mất thêm thời gian để cài Chromium, thư viện hệ thống và FFmpeg.
 - **Artifact không xuất hiện:** workflow phải kết thúc thành công và bước upload artifact phải hoàn tất.
 
