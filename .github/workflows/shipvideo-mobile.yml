@@ -31,7 +31,7 @@ jobs:
     env:
       OPENCOMPUTER_API_KEY: ${{ secrets.OPENCOMPUTER_API_KEY }}
       OPENCOMPUTER_API_URL: ${{ vars.OPENCOMPUTER_API_URL || 'https://app.opencomputer.dev' }}
-      OC_AGENT_ID: ${{ vars.OC_AGENT_ID || 'shipvideo@development' }}
+      OC_AGENT_ID: ${{ vars.OC_AGENT_ID || 'shipvideo@default' }}
       VIDEO_MODE: ${{ inputs.mode }}
       VIDEO_INPUT: ${{ inputs.input }}
     steps:
