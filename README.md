@@ -62,7 +62,7 @@ the Chromium shared libs, and Noto fonts into ~/.shipvideo on the local disk
 ```
 npm install && npx opencomputer link --create-project shipvideo && npx opencomputer deploy --watch
 cd web && npm install && vercel link && vercel env pull .env.local
-# add to web/.env.local: OPENCOMPUTER_API_KEY=... and OC_AGENT_ID=shipvideo@development
+# add to web/.env.local: OPENCOMPUTER_API_KEY=... and OC_AGENT_ID=shipvideo@default
 cd web && npm run dev
 ```
 
