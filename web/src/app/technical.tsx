@@ -59,7 +59,7 @@ export function Technical() {
       <p className="mt-6 text-sm text-muted">
         Everything above is in the repo, and{" "}
         <a href={DEPLOY_URL} target="_blank" rel="noreferrer" className="text-foreground underline underline-offset-4">one click deploys it to your account</a>. The idea comes from{" "}
-        <a href="https://x.com/deedydas/status/2102787937482252537" className="text-foreground underline underline-offset-4" target="_blank" rel="noreferrer">Deedy's post</a>{" "}
+        <a href="https://x.com/deedydas/status/2102787937482252537" className="text-foreground underline underline-offset-4" target="_blank" rel="noreferrer">Deedy&apos;s post</a>{" "}
         on Opus 5.5 and instructional video: the model writes the film as code, and code renders the same every time.
       </p>
     </section>
